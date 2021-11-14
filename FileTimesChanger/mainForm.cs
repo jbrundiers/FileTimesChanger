@@ -16,13 +16,14 @@ namespace FileTimesChanger
         public mainForm()
         {
             InitializeComponent();
-        }
+			cbRecurseSubDirectories.Checked = false;
+			cbSetCreationDate.Checked = true;
+			cbSetLastAccessDate.Checked = true;
+			cbSetLastWriteDate.Checked = true;
 
-        private void MenuItemHelp_Click(object sender, EventArgs e)
-        {
+		}
 
-        }
-
+        #region Menue
         private void MenuItemHelpAbout_Click(object sender, EventArgs e)
         {
             // Instantiate window
@@ -43,10 +44,9 @@ namespace FileTimesChanger
             OpenFile();
         }
 
-		private void btnBrowse_Click(object sender, EventArgs e)
-		{
-			OpenFile();
-		}
+		#endregion Menue
+
+		
 
 
 		/// <summary>
@@ -63,6 +63,12 @@ namespace FileTimesChanger
 		/// Count of the number of files/directories that have errors seting the date/time
 		/// </summary>
 		private int itemsErrorsCount;
+
+
+		private void btnBrowse_Click(object sender, EventArgs e)
+		{
+			OpenFile();
+		}
 
 		/// <summary>
 		/// Display the Folder Browser Dialog and then display the selected
@@ -117,26 +123,24 @@ namespace FileTimesChanger
 		private void DisplayFilesList(string DirectoryName)
 		{
 			listViewFiles.Items.Clear();
-			// Display all the sub directories using the folder icon
-			foreach (string subDirectory in Directory.GetDirectories(DirectoryName))
-			{
-				// The method used below to reset the last access date/time of files does not appear to 
-				// work with directories. Hence the last access date/time gets updated to when the 
-				// FolderBrowser looked at the directory.
-				// JB listViewFiles.Items.Add(Path.GetFileName(subDirectory), (int)ListViewIcon.Directory);
-				listViewFiles.Items.Add(Path.GetFileName(subDirectory), 0);
-				
+            // Display all the sub directories using the folder icon
+            foreach (string subDirectory in Directory.GetDirectories(DirectoryName))
+		    {
+					// The method used below to reset the last access date/time of files does not appear to 
+					// work with directories. Hence the last access date/time gets updated to when the 
+					// FolderBrowser looked at the directory.
+					listViewFiles.Items.Add(Path.GetFileName(subDirectory), 0);
+
 			}
-			// Display all of the files using the file icon
-			foreach (string file in Directory.GetFiles(DirectoryName))
-			{
+            // Display all of the files using the file icon
+            foreach (string file in Directory.GetFiles(DirectoryName))
+            {
 				if (!((File.GetAttributes(file) & FileAttributes.Hidden) == FileAttributes.Hidden))
 				{
 					// When Path.GetFileName is called the last access date/time is updated on the file. 
 					// Hence we save the last access date/time and the reset it to the old last.
 					// access date/time after the call.
 					DateTime accessTime = File.GetLastAccessTime(file);
-					//JB listViewFiles.Items.Add(Path.GetFileName(file), (int)ListViewIcon.File);
 					listViewFiles.Items.Add(Path.GetFileName(file), 1);
 					try
 					{
@@ -145,7 +149,8 @@ namespace FileTimesChanger
 					catch { } // Do nothing
 				}
 			}
-		}
+
+        }
 
 		/// <summary>
 		/// The ListView selection has changed
@@ -207,10 +212,6 @@ namespace FileTimesChanger
 		private void UpdateDateTime()
 		{
 
-			//DateTime fileDateTime = DateTime.Parse(dateTimePicker_Date.Value.Date.ToString() +
-			//					" " + dateTimePicker_Hour.Value.Hour + ":" +
-			//	dateTimePicker_Minutes.Value.Minute + ":" +
-			//	dateTimePicker_Seconds.Value.Second);
 			DateTime fileDateTime = dateTimePickerDate.Value.Date;
 
 			fileDateTime = fileDateTime.AddHours(dateTimePickerTime.Value.Hour);
@@ -220,21 +221,29 @@ namespace FileTimesChanger
 			itemsSetCount = 0;
 			itemsSkippedCount = 0;
 			itemsErrorsCount = 0;
+
 			foreach (ListViewItem file in listViewFiles.SelectedItems)
 			{
 				string fileName;
 				fileName = Path.Combine(tbFilePath.Text, file.Text);
-				//if ((file.ImageIndex == (int)ListViewIcon.Directory) & checkBox_Recurse.Checked)
-				if ((file.ImageIndex == 1) & cbRecurseSubDirectories.Checked)
+				// is directory ?
+				if ((file.ImageIndex == 0) && cbRecurseSubDirectories.Checked)
 				{
 					// If the item is a directory (flaged by the image index) 
 					// and recurse subdirectories is selected
 					RecurseSubDirectory(fileName, fileDateTime);
 				}
-				//SetFileDateTime(fileName, fileDateTime, (file.ImageIndex == (int)ListViewIcon.Directory)); 
-				SetFileDateTime(fileName, fileDateTime, (file.ImageIndex == 1));
+				
+				SetFileDateTime(fileName, fileDateTime, (file.ImageIndex != 1));
+
+				// Set file display date/time
+				tbCurrentCreationDate.Text = File.GetCreationTime(fileName).ToString();
+				tbCurrentAccessDate.Text = File.GetLastAccessTime(fileName).ToString();
+				tbCurrentLastWriteDate.Text = File.GetLastWriteTime(fileName).ToString();
 			}
+
 			string message = itemsSetCount.ToString() + " file(s)/directorie(s) have had there date/time set";
+			
 			if (itemsErrorsCount > 0)
 			{
 				message += "\r\n\r\n There were " + itemsErrorsCount.ToString() + " error(s)";
@@ -244,10 +253,8 @@ namespace FileTimesChanger
 				message += "\r\n\r\n There were " + itemsSkippedCount.ToString() + " system or hidded files/directories skipped.";
 			}
 			MessageBox.Show(message, "Date/Time", MessageBoxButtons.OK, MessageBoxIcon.Information);
-			// Set file display date/time
-			tbCurrentCreationDate.Text = fileDateTime.ToString();
-			tbCurrentAccessDate.Text = fileDateTime.ToString();
-			tbCurrentLastWriteDate.Text = fileDateTime.ToString();
+
+			
 		}
 
 		/// <summary>
@@ -352,7 +359,33 @@ namespace FileTimesChanger
 			}
 		}
 
+        private void mainForm_Load(object sender, EventArgs e)
+        {
+			// Display the folder path
+			string directoryName = Environment.GetFolderPath(Environment.SpecialFolder.Personal);
+			tbFilePath.Text = directoryName;
+			DisplayFilesList(directoryName);
+		}
 
 
-	}
+		private void tbFilePath_Leave(object sender, EventArgs e)
+		{
+			// Display the folder path
+			string directoryName = tbFilePath.Text;
+
+			if (Directory.Exists(tbFilePath.Text))
+			{
+				DisplayFilesList(directoryName);
+
+			}
+			else
+			{
+				directoryName = Environment.GetFolderPath(Environment.SpecialFolder.Personal);
+				tbFilePath.Text = directoryName;
+				DisplayFilesList(directoryName);
+			}
+
+			
+		}
+    }
 }

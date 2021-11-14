@@ -18,8 +18,8 @@ namespace FileTimesChanger
             this.labelProductName.Text = AssemblyProduct;
             this.labelVersion.Text = String.Format("Version {0}", AssemblyVersion);
             this.labelCopyright.Text = AssemblyCopyright;
-            this.labelCompanyName.Text = AssemblyCompany;
-            this.textBoxDescription.Text = AssemblyDescription;
+            //this.labelCompanyName.Text = AssemblyCompany;
+            //this.textBoxDescription.Text = AssemblyDescription;
         }
 
         #region Assembly Attribute Accessors
@@ -100,6 +100,13 @@ namespace FileTimesChanger
                 return ((AssemblyCompanyAttribute)attributes[0]).Company;
             }
         }
+
+
         #endregion
+
+        private void btnOk_Click(object sender, EventArgs e)
+        {
+            this.Close();
+        }
     }
 }
