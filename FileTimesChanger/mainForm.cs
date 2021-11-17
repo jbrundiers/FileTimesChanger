@@ -1,4 +1,25 @@
-﻿using System;
+﻿//------------------------------------------------------------------------------------------------
+//
+//	FileTimesChanger
+//
+//	Copyright (C) 2021 Soft-Toolware. All Rights Reserved
+//
+//	The software is a free software.
+//	It is distributed under the Code Project Open License (CPOL 1.02)
+//	agreement. The full text of the CPOL is given in:
+//	https://www.codeproject.com/info/cpol10.aspx
+//	
+//	The main points of CPOL 1.02 subject to the terms of the License are:
+//
+//	Source Code and Executable Files can be used in commercial applications;
+//	Source Code and Executable Files can be redistributed; and
+//	Source Code can be modified to create derivative works.
+//	No claim of suitability, guarantee, or any warranty whatsoever is
+//	provided. The software is provided "as-is".
+//	
+//
+//------------------------------------------------------------------------------------------------
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
@@ -20,7 +41,6 @@ namespace FileTimesChanger
 			cbSetCreationDate.Checked = true;
 			cbSetLastAccessDate.Checked = true;
 			cbSetLastWriteDate.Checked = true;
-
 		}
 
         #region Menue
@@ -46,8 +66,7 @@ namespace FileTimesChanger
 
 		#endregion Menue
 
-		
-
+		#region global vars
 
 		/// <summary>
 		/// Count of the number of files/directories that have been set
@@ -59,11 +78,12 @@ namespace FileTimesChanger
 		/// </summary>
 		private int itemsSkippedCount;
 
-		/// <summary>
-		/// Count of the number of files/directories that have errors seting the date/time
-		/// </summary>
-		private int itemsErrorsCount;
+        /// <summary>
+        /// Count of the number of files/directories that have errors seting the date/time
+        /// </summary>
+        private int itemsErrorsCount;
 
+		#endregion global vars
 
 		private void btnBrowse_Click(object sender, EventArgs e)
 		{
@@ -149,7 +169,6 @@ namespace FileTimesChanger
 					catch { } // Do nothing
 				}
 			}
-
         }
 
 		/// <summary>
@@ -161,8 +180,6 @@ namespace FileTimesChanger
         {
 			UpdateButtonEnable();
 			UpdateDisplayFileDateTime();
-
-
 		}
 
 		/// <summary>
@@ -201,8 +218,6 @@ namespace FileTimesChanger
 				tbCurrentCreationDate.Text = "";
 				tbCurrentAccessDate.Text = "";
 				tbCurrentLastWriteDate.Text = "";
-
-				
 			}
 		}
 
@@ -211,7 +226,6 @@ namespace FileTimesChanger
 		/// </summary>
 		private void UpdateDateTime()
 		{
-
 			DateTime fileDateTime = dateTimePickerDate.Value.Date;
 
 			fileDateTime = fileDateTime.AddHours(dateTimePickerTime.Value.Hour);
@@ -242,6 +256,7 @@ namespace FileTimesChanger
 				tbCurrentLastWriteDate.Text = File.GetLastWriteTime(fileName).ToString();
 			}
 
+			// build message for user
 			string message = itemsSetCount.ToString() + " file(s)/directorie(s) have had there date/time set";
 			
 			if (itemsErrorsCount > 0)
@@ -252,9 +267,9 @@ namespace FileTimesChanger
 			{
 				message += "\r\n\r\n There were " + itemsSkippedCount.ToString() + " system or hidded files/directories skipped.";
 			}
-			MessageBox.Show(message, "Date/Time", MessageBoxButtons.OK, MessageBoxIcon.Information);
+			MessageBox.Show(message, "FileTimesChanger", MessageBoxButtons.OK, MessageBoxIcon.Information);
+		
 
-			
 		}
 
 		/// <summary>
@@ -304,7 +319,7 @@ namespace FileTimesChanger
 				else if ((fileAttributes & FileAttributes.ReadOnly) == FileAttributes.ReadOnly)
 				{
 					MessageBox.Show("The file/directory '" + FilePath + "' is read only",
-						"Date/Time", MessageBoxButtons.OK,
+						"FileTimesChanger", MessageBoxButtons.OK,
 						MessageBoxIcon.Information);
 				}
 				else
@@ -342,7 +357,7 @@ namespace FileTimesChanger
 						{
 							Directory.SetLastAccessTime(FilePath, FileTime);
 						}
-						else
+                        else
 						{
 							File.SetLastAccessTime(FilePath, FileTime);
 						}
@@ -354,7 +369,7 @@ namespace FileTimesChanger
 			{
 				++itemsErrorsCount;
 				MessageBox.Show("Error in setting date/time on '" + FilePath + "': \r\n\r\n" + ex.Message,
-					"Date/Time Error " + itemsErrorsCount.ToString(), MessageBoxButtons.OK,
+					"FileTimesChanger Error " + itemsErrorsCount.ToString(), MessageBoxButtons.OK,
 					MessageBoxIcon.Exclamation);
 			}
 		}
@@ -376,7 +391,6 @@ namespace FileTimesChanger
 			if (Directory.Exists(tbFilePath.Text))
 			{
 				DisplayFilesList(directoryName);
-
 			}
 			else
 			{
@@ -384,8 +398,6 @@ namespace FileTimesChanger
 				tbFilePath.Text = directoryName;
 				DisplayFilesList(directoryName);
 			}
-
-			
 		}
     }
 }
