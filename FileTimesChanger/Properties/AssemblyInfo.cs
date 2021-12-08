@@ -8,9 +8,9 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyTitle("FileTimesChanger")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("Soft Toolware")]
+[assembly: AssemblyCompany("SoftToolware")]
 [assembly: AssemblyProduct("FileTimesChanger")]
-[assembly: AssemblyCopyright("Copyright © 2021 Soft Toolware")]
+[assembly: AssemblyCopyright("Copyright © 2021 Soft-Toolware")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
